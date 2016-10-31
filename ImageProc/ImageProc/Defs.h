@@ -11,6 +11,8 @@ enum Colors
 	BLUE
 };
 
+const unsigned int GREYSCALE = 0;
+
 const int STANDARD_DIMENTIONS = 3;
 const int LARGE_DIMENTIONS = 5;
 
@@ -56,4 +58,24 @@ const unsigned char largeGaussian[5][5] = {
 	{2, 4, 8, 4, 2},
 	{1, 2, 4, 2, 1},
 	{0, 1, 2, 1, 0}
+};
+
+const unsigned char intenseGaussian[5][5] = {
+	{ 1, 2,  4, 2, 1 },
+	{ 2, 4,  8, 4, 2 },
+	{ 4, 8, 16, 8, 4 },
+	{ 2, 4,  8, 4, 2 },
+	{ 1, 2,  4, 2, 1 }
+};
+
+const unsigned char Gx[3][3] = {
+	{-1, 0, 1},
+	{-2, 0, 2},
+	{-1, 0, 1}
+};
+
+const unsigned char Gy[3][3] = {
+	{-1, -2, -1},
+	{ 0,  0,  0},
+	{ 1,  2,  1}
 };

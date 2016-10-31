@@ -15,14 +15,12 @@ void makeGreyscale(CImg <unsigned char> &image);
 
 // Blurs
 // -------------------------------------------------------------------------------------------------------------------------------
-void averageBlur(CImg <unsigned char> &image, float magnitude);
 void applyKernel(CImg <unsigned char> &image, const unsigned char kernel[STANDARD_DIMENTIONS][STANDARD_DIMENTIONS], int devisor);
 void applyLargeKernel(CImg <unsigned char> &image, const unsigned char kernel[LARGE_DIMENTIONS][LARGE_DIMENTIONS], int devisor);
-
-
-// Maths
-// -------------------------------------------------------------------------------------------------------------------------------
-std::vector <std::vector <unsigned char>> MatrixSD(int intensity, int width);
+void applySobel(CImg <unsigned char> &image);
+void applyLargeKernelOnChannel(CImg <unsigned char> &image, const unsigned char kernel[LARGE_DIMENTIONS][LARGE_DIMENTIONS], int devisor, int channel);
+void applyKernelOnChannel(CImg <unsigned char> & image, const unsigned char kernel[STANDARD_DIMENTIONS][STANDARD_DIMENTIONS], int devisor, int channel);
 
 // Utility
 // -------------------------------------------------------------------------------------------------------------------------------
+int totalKernel(const unsigned char kernel[LARGE_DIMENTIONS][LARGE_DIMENTIONS]);

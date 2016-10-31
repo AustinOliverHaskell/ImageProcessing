@@ -8,6 +8,9 @@
 
 using namespace cimg_library;
 
+
+// Baisc Color stuff
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------
 void shiftColor(CImg <unsigned char> &image, unsigned int shift, unsigned int tolerance, enum Colors color)
 {
 	for (int y = 0; y < image.height(); y++)
@@ -57,50 +60,15 @@ void makeGreyscale(CImg <unsigned char> &image)
 	{
 		for (int x = 0; x < image.width(); x++)
 		{
-			greyScale(x, y, 0, 0) = (image(x, y, 0, RED) + image(x, y, 0, BLUE) + image(x, y, 0, GREEN)) / 3;
+			greyScale(x, y, 0, 0) = (0.21*(image(x, y, 0, RED)) + (0.72*image(x, y, 0, BLUE)) + (0.07*image(x, y, 0, GREEN))) / 3;
 		}
 	}
 
 	image = greyScale;
 }
 
-void averageBlur(CImg <unsigned char> &image, float magnitude)
-{
-	for (int y = 0; y < image.height(); y++)
-	{
-		for (int x = 0; x < image.width(); x++)
-		{
-			// Not on an edge
-			if ((y != 0 && y != (image.height() - 1)) &&
-			    (x != 0 && x != (image.width()  - 1)))
-			{
-				int red = 0;
-				int green = 0;
-				int blue = 0;
-
-				// Gather adjacent pixels
-				for (int i = -1; i <= 1; i++)
-				{
-					for (int k = -1; k <= 1; k++)
-					{
-						red += (int)image(x + k, y + i, 0, RED) * magnitude;
-						green += (int)image(x + k, y + i, 0, GREEN) * magnitude;
-						blue += (int)image(x + k, y + i, 0, BLUE) * magnitude;
-					}
-				}
-
-				red = red / 9;
-				green = green / 9;
-				blue = blue / 9;
-
-				image(x, y, 0, RED) = (unsigned char)red;
-				image(x, y, 0, GREEN) = (unsigned char)green;
-				image(x, y, 0, BLUE) = (unsigned char)blue;
-
-			}
-		}
-	}
-}
+// Kernel Convolution
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------
 void applyKernel(CImg <unsigned char> &image, const unsigned char kernel[STANDARD_DIMENTIONS][STANDARD_DIMENTIONS], int devisor)
 {
 	/* Sudo code - curtesy of Wikipedia
@@ -124,89 +92,115 @@ void applyKernel(CImg <unsigned char> &image, const unsigned char kernel[STANDAR
 
 	CImg <unsigned char> duplicate(image);
 
-	// Starting at one and going to the height/width -dimentionOfKernel will keep us in bounds of the image
-	for (int y = 1; y < image.height()- STANDARD_DIMENTIONS; y++)
+	for (int i = 0; i < image.spectrum(); i++)
 	{
-		for (int x = 1; x < image.width()- STANDARD_DIMENTIONS; x++)
-		{
-			int red   = 0;
-			int green = 0;
-			int blue  = 0;
-
-			for (int kr = -1; kr < STANDARD_DIMENTIONS - 1; kr++)
-			{
-				for (int ke = -1; ke < STANDARD_DIMENTIONS - 1; ke++)
-				{
-					red   += (int)image(x + ke, y + kr, 0, RED)   * kernel[kr+1][ke+1];
-					green += (int)image(x + ke, y + kr, 0, GREEN) * kernel[kr+1][ke+1];
-					blue  += (int)image(x + ke, y + kr, 0, BLUE)  * kernel[kr+1][ke+1];
-				}
-			}
-
-			red   /= devisor;
-			blue  /= devisor;
-			green /= devisor;
-
-			duplicate(x, y, 0, RED)   = (unsigned char)red;
-			duplicate(x, y, 0, GREEN) = (unsigned char)green;
-			duplicate(x, y, 0, BLUE)  = (unsigned char)blue;
-		}
+		applyKernelOnChannel(duplicate, kernel, devisor, i);
 	}
 
 	image = duplicate;
 }
 void applyLargeKernel(CImg <unsigned char> &image, const unsigned char kernel[LARGE_DIMENTIONS][LARGE_DIMENTIONS], int devisor)
 {
+	for (int i = 0; i < image.spectrum(); i++)
+	{
+		applyLargeKernelOnChannel(image, kernel, devisor, i);
+	}
+}
+void applyLargeKernelOnChannel(CImg <unsigned char> &image, const unsigned char kernel[LARGE_DIMENTIONS][LARGE_DIMENTIONS], int devisor, int channel)
+{
 	CImg <unsigned char> duplicate(image);
 
 	// Starting at one and going to the height/width -dimentionOfKernel will keep us in bounds of the image
-	for (int y = 1; y < image.height() - LARGE_DIMENTIONS; y++)
+	for (int y = 2; y < image.height() - LARGE_DIMENTIONS; y++)
 	{
-		for (int x = 1; x < image.width() - LARGE_DIMENTIONS; x++)
+		for (int x = 2; x < image.width() - LARGE_DIMENTIONS; x++)
 		{
-			std::vector <int> channels;
+			int total = 0;
 
-			for (int i = 0; i < image.spectrum(); i++)
+			for (int kr = -2; kr < LARGE_DIMENTIONS - 2; kr++)
 			{
-				channels.push_back(0);
-			}
-
-			for (int kr = -2; kr < LARGE_DIMENTIONS - 1; kr++)
-			{
-				for (int ke = -2; ke < LARGE_DIMENTIONS - 1; ke++)
+				for (int ke = -2; ke < LARGE_DIMENTIONS - 2; ke++)
 				{
-					for (int i = 0; i < channels.size(); i++)
-					{
-						channels[i] += (int)image(x + ke, y + kr, 0, i)   * kernel[kr + 2][ke + 2];
-					}
+					total += (int)image(x + ke, y + kr, 0, channel) * kernel[ke + 2][kr + 2];
 				}
 			}
 
-			for (int i = 0; i < channels.size(); i++)
+			total /= devisor;
+			duplicate(x, y, 0, channel) = (unsigned char)total;
+		}
+	}
+
+	duplicate.normalize(240, 250);
+	image = duplicate;
+}
+void applyKernelOnChannel(CImg <unsigned char> & image, const unsigned char kernel[STANDARD_DIMENTIONS][STANDARD_DIMENTIONS], int devisor, int channel)
+{
+	CImg <unsigned char> duplicate(image);
+
+	// Starting at one and going to the height/width -dimentionOfKernel will keep us in bounds of the image
+	for (int y = 1; y < image.height() - STANDARD_DIMENTIONS; y++)
+	{
+		for (int x = 1; x < image.width() - STANDARD_DIMENTIONS; x++)
+		{
+			int total = 0;
+
+			for (int kr = -1; kr < STANDARD_DIMENTIONS - 1; kr++)
 			{
-				channels[i] /= devisor;
-				duplicate(x, y, 0, i) = (unsigned char)channels[i];
+				for (int ke = -1; ke < STANDARD_DIMENTIONS - 1; ke++)
+				{
+					total += (int)image(x + ke, y + kr, 0, channel)   * kernel[kr + 1][ke + 1];
+				}
 			}
+
+			total /= devisor;
+
+			duplicate(x, y, 0, channel) = (unsigned char)total;
+		}
+	}
+
+	image = duplicate;
+}
+void applySobel(CImg <unsigned char> &image)
+{
+	CImg <unsigned char> duplicate(image);
+
+	applyLargeKernel(duplicate, intenseGaussian, totalKernel(intenseGaussian));
+	makeGreyscale(duplicate);
+
+	CImg <unsigned char> X(duplicate);
+	CImg <unsigned char> Y(duplicate);
+
+	applyKernel(X, Gx, 1);
+	applyKernel(Y, Gy, 1);
+
+	CImgDisplay main_disp(X, "GX");
+	CImgDisplay second_disp(Y, "GY");
+
+	// Check to make sure that the displays arnt closed, if so then our porgram will end
+	while (!main_disp.is_closed()) {}
+
+	for (int y = 0; y < duplicate.height(); y++)
+	{
+		for (int x = 0; x < duplicate.width(); x++)
+		{
+			duplicate(x, y, 0, GREYSCALE) = (unsigned char)sqrt(pow(X(x, y, 0, GREYSCALE), 2) + pow(Y(x, y, 0, GREYSCALE), 2));
 		}
 	}
 
 	image = duplicate;
 }
 
-std::vector <std::vector <unsigned char>> MatrixSD(int intensity, int width)
+// Utility
+// -------------------------------------------------------------------------------------------------------------------------------
+int totalKernel(const unsigned char kernel[LARGE_DIMENTIONS][LARGE_DIMENTIONS])
 {
-	std::vector < std::vector < unsigned char >> retVal;
+	int retVal = 0;
 
-	// Class to generate the distrubution
-	std::normal_distribution <> distribution(0.0, 2.0);
-
-
-	// For each vector
-	for (int y = 0; y < width; y++)
+	for (int y = 0; y < LARGE_DIMENTIONS; y++)
 	{
-		for (int x = 0; x < width; x++)
+		for (int x = 0; x < LARGE_DIMENTIONS; x++)
 		{
-
+			retVal += kernel[x][y];
 		}
 	}
 

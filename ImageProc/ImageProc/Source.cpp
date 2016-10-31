@@ -9,9 +9,9 @@ using namespace cimg_library;
 int main() {
 
 	// Open image
-	CImg<unsigned char> image("cat.jpg");
+	CImg <unsigned char> image("flower.jpg");
 
-	applyKernel(image, gaussian, 32);
+	applySobel(image);
 
 	// Create two displays (Windows)
 	CImgDisplay main_disp(image, "Stenography");
