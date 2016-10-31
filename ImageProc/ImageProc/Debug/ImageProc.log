@@ -1,10 +1,16 @@
-﻿  KernelFunctions.cpp
-c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\defs.h(19): warning C4838: conversion from 'int' to 'const unsigned char' requires a narrowing conversion
-c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\kernelfunctions.cpp(70): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
-c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\kernelfunctions.cpp(71): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
-c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\kernelfunctions.cpp(72): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
-c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\kernelfunctions.cpp(109): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-  Source.cpp
-c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\defs.h(19): warning C4838: conversion from 'int' to 'const unsigned char' requires a narrowing conversion
+﻿  Source.cpp
+c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\defs.h(33): warning C4838: conversion from 'int' to 'const unsigned char' requires a narrowing conversion
+c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\defs.h(45): warning C4838: conversion from 'int' to 'const unsigned char' requires a narrowing conversion
   Generating Code...
-LINK : fatal error LNK1201: error writing to program database 'C:\Users\Austin\Documents\GitHub\Messing-With-CImg\ImageProc\Debug\ImageProc.pdb'; check for insufficient disk space, invalid path, or insufficient privilege
+  Compiling...
+  KernelFunctions.cpp
+c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\defs.h(33): warning C4838: conversion from 'int' to 'const unsigned char' requires a narrowing conversion
+c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\defs.h(45): warning C4838: conversion from 'int' to 'const unsigned char' requires a narrowing conversion
+c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\kernelfunctions.cpp(86): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\kernelfunctions.cpp(87): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\kernelfunctions.cpp(88): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\kernelfunctions.cpp(178): warning C4018: '<': signed/unsigned mismatch
+c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\kernelfunctions.cpp(185): warning C4018: '<': signed/unsigned mismatch
+  Generating Code...
+  ImageProc.vcxproj -> C:\Users\Austin\Documents\GitHub\Messing-With-CImg\ImageProc\Debug\ImageProc.exe
+  ImageProc.vcxproj -> C:\Users\Austin\Documents\GitHub\Messing-With-CImg\ImageProc\Debug\ImageProc.pdb (Full PDB)

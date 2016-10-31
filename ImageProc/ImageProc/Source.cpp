@@ -11,18 +11,15 @@ int main() {
 	// Open image
 	CImg<unsigned char> image("cat.jpg");
 
-	applyKernel(image, sharpen, 9);
-
+	applyKernel(image, gaussian, 32);
 
 	// Create two displays (Windows)
 	CImgDisplay main_disp(image, "Stenography");
 
-
 	// Check to make sure that the displays arnt closed, if so then our porgram will end
-	while (!main_disp.is_closed())
-	{
-	}
+	while (!main_disp.is_closed()) {}
 
+	image.save("result.jpg");
 
 	// End
 	return 0;
