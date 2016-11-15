@@ -1,17 +1,18 @@
 #include <iostream>
 #include <cmath>
+#include <omp.h>
 #include <random>
 #include <vector>
 #include "CImg.h"
 #include "KernelFunctions.h"
 #include "Defs.h"
+#include "assert.h"
 
 using namespace cimg_library;
 
-
 // Baisc Color stuff
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------
-void shiftColor(CImg <unsigned char> &image, unsigned int shift, unsigned int tolerance, enum Colors color)
+void shiftColor(CImg <Image_t> &image, uint shift, uint tolerance, enum Colors color)
 {
 	for (int y = 0; y < image.height(); y++)
 	{
@@ -24,10 +25,10 @@ void shiftColor(CImg <unsigned char> &image, unsigned int shift, unsigned int to
 		}
 	}
 }
-void grabChannel(const CImg <unsigned char> &image, enum Colors color, std::string filename)
+void grabChannel(const CImg <Image_t> &image, enum Colors color, std::string filename)
 {
 	// Will seperate the color into a new image of same dimentions
-	CImg <unsigned char> retVal(image.width(), image.height(), image.depth(), image.spectrum());
+	CImg <Image_t> retVal(image.width(), image.height(), image.depth(), image.spectrum());
 
 	std::cout << "Image Depth: " << image.spectrum() << std::endl;
 
@@ -42,7 +43,7 @@ void grabChannel(const CImg <unsigned char> &image, enum Colors color, std::stri
 	//retVal.fill(100);
 	retVal.save(filename.c_str());
 }
-void removeColor(CImg <unsigned char> &image, enum Colors color)
+void removeColor(CImg <Image_t> &image, enum Colors color)
 {
 	for (int y = 0; y < image.height(); y++)
 	{
@@ -52,140 +53,125 @@ void removeColor(CImg <unsigned char> &image, enum Colors color)
 		}
 	}
 }
-void makeGreyscale(CImg <unsigned char> &image)
+void makeGreyscale(CImg <Image_t> &image)
 {
-	CImg <unsigned char> greyScale(image.width(), image.height(), image.depth(), 1);
+	CImg <Image_t> greyScale(image.width(), image.height(), image.depth(), 1);
 
 	for (int y = 0; y < image.height(); y++)
 	{
 		for (int x = 0; x < image.width(); x++)
 		{
-			greyScale(x, y, 0, 0) = (0.21*(image(x, y, 0, RED)) + (0.72*image(x, y, 0, BLUE)) + (0.07*image(x, y, 0, GREEN))) / 3;
+			greyScale(x, y, 0, 0) = (image(x, y, 0, RED) + image(x, y, 0, BLUE) + image(x, y, 0, GREEN)) / 3;
 		}
 	}
 
 	image = greyScale;
 }
+void filterNoise(CImg <Image_t> &image, int threshold)
+{
+	for (int y = 0; y < image.height(); y++)
+	{
+		for (int x = 0; x < image.width(); x++)
+		{
+			if (image(x, y, 0, GREYSCALE) < threshold)
+			{
+				image(x, y, 0, GREYSCALE) = 0;
+			}
+		}
+	}
+}
 
 // Kernel Convolution
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------
-void applyKernel(CImg <unsigned char> &image, const unsigned char kernel[STANDARD_DIMENTIONS][STANDARD_DIMENTIONS], int devisor)
+void applyKernel(CImg <Image_t> &image, const unsigned char kernel[LARGE_DIMENTIONS][LARGE_DIMENTIONS], int devisor)
 {
-	/* Sudo code - curtesy of Wikipedia
-	for each image row in input image:
-		for each pixel in image row:
-
-		set accumulator to zero
-
-			for each kernel row in kernel:
-				for each element in kernel row:
-
-					if element position  corresponding* to pixel position then
-					multiply element value  corresponding* to pixel value
-					add result to accumulator
-				endif
-
-		set output image pixel to accumulator
-
-
-	*/
-
-	CImg <unsigned char> duplicate(image);
-
+	#pragma omp parallel for
 	for (int i = 0; i < image.spectrum(); i++)
 	{
-		applyKernelOnChannel(duplicate, kernel, devisor, i);
-	}
-
-	image = duplicate;
-}
-void applyLargeKernel(CImg <unsigned char> &image, const unsigned char kernel[LARGE_DIMENTIONS][LARGE_DIMENTIONS], int devisor)
-{
-	for (int i = 0; i < image.spectrum(); i++)
-	{
-		applyLargeKernelOnChannel(image, kernel, devisor, i);
+		// Apply the kernel to each channel
+		applyKernelOnChannel(image, kernel, devisor, i);
 	}
 }
-void applyLargeKernelOnChannel(CImg <unsigned char> &image, const unsigned char kernel[LARGE_DIMENTIONS][LARGE_DIMENTIONS], int devisor, int channel)
+void applyKernelOnChannel(CImg <Image_t> &image, const unsigned char kernel[LARGE_DIMENTIONS][LARGE_DIMENTIONS], int devisor, int channel)
 {
-	CImg <unsigned char> duplicate(image);
+	CImg <Image_t> duplicate(image);
 
 	// Starting at one and going to the height/width -dimentionOfKernel will keep us in bounds of the image
-	for (int y = 2; y < image.height() - LARGE_DIMENTIONS; y++)
+	// Not Optimized
+	for (int y = 2; y < image.height() - 2; y++)
 	{
-		for (int x = 2; x < image.width() - LARGE_DIMENTIONS; x++)
+		for (int x = 2; x < image.width() - 2; x++)
 		{
 			int total = 0;
 
-			for (int kr = -2; kr < LARGE_DIMENTIONS - 2; kr++)
+			for (int kr = -2; kr <= 2; kr++)
 			{
-				for (int ke = -2; ke < LARGE_DIMENTIONS - 2; ke++)
+				for (int ke = -2; ke <= 2; ke++)
 				{
-					total += (int)image(x + ke, y + kr, 0, channel) * kernel[ke + 2][kr + 2];
+					total += (image(x + ke, y + kr, 0, channel) * kernel[ke + 2][kr + 2]);
 				}
 			}
-
+			// Divide, some kernels (like gaussian have to be divided by the total)
 			total /= devisor;
-			duplicate(x, y, 0, channel) = (unsigned char)total;
+
+			// reduceIntToChar should keep overflows in check
+			duplicate(x, y, 0, channel) = (Image_t)total;
 		}
 	}
-
-	duplicate.normalize(240, 250);
-	image = duplicate;
-}
-void applyKernelOnChannel(CImg <unsigned char> & image, const unsigned char kernel[STANDARD_DIMENTIONS][STANDARD_DIMENTIONS], int devisor, int channel)
-{
-	CImg <unsigned char> duplicate(image);
-
-	// Starting at one and going to the height/width -dimentionOfKernel will keep us in bounds of the image
-	for (int y = 1; y < image.height() - STANDARD_DIMENTIONS; y++)
+	
+	#pragma omp critical
 	{
-		for (int x = 1; x < image.width() - STANDARD_DIMENTIONS; x++)
-		{
-			int total = 0;
+	commitChange(image, duplicate, channel);
+	}
+}
+void applySobelKernel(CImg <Image_t> & image)
+{
+	// Optimization
+	// N(x,y) = Sum of { K(i,j).P(x-i,y-j)}
 
-			for (int kr = -1; kr < STANDARD_DIMENTIONS - 1; kr++)
+	CImg <Image_t> duplicate(image);
+
+	// Starting at one and going to the height/width -1 will keep us in bounds of the image
+	for (int y = 1; y < image.height() - 1; y++)
+	{
+		for (int x = 1; x < image.width() - 1; x++)
+		{
+			int totalX = 0;
+			int totalY = 0;
+			
+			for (int i = -1; i <= 1; i++)
 			{
-				for (int ke = -1; ke < STANDARD_DIMENTIONS - 1; ke++)
+				for (int q = -1; q <= 1; q++)
 				{
-					total += (int)image(x + ke, y + kr, 0, channel)   * kernel[kr + 1][ke + 1];
+					totalX += image(x+q, y+i, 0, 0) * Gx[q+1][i+1];
+					totalY += image(x + q, y + i, 0, 0) * Gy[q + 1][i + 1];
+
 				}
 			}
-
-			total /= devisor;
-
-			duplicate(x, y, 0, channel) = (unsigned char)total;
+			
+			duplicate(x, y, 0, 0) = sqrt(abs(pow(totalX, 2) + pow(totalY, 2)));
 		}
 	}
 
 	image = duplicate;
 }
-void applySobel(CImg <unsigned char> &image)
+void applySobel(CImg <Image_t> &image)
 {
-	CImg <unsigned char> duplicate(image);
+	// Make a duplicate
+	CImg <Image_t> duplicate(image);
 
-	applyLargeKernel(duplicate, intenseGaussian, totalKernel(intenseGaussian));
+	// Blur to reduce noise
+	applyKernel(duplicate, intenseGaussian, 100);
+
+	// Make it greyscale
 	makeGreyscale(duplicate);
 
-	CImg <unsigned char> X(duplicate);
-	CImg <unsigned char> Y(duplicate);
 
-	applyKernel(X, Gx, 1);
-	applyKernel(Y, Gy, 1);
+	applySobelKernel(duplicate);
 
-	CImgDisplay main_disp(X, "GX");
-	CImgDisplay second_disp(Y, "GY");
+	CImgDisplay main_disp(duplicate, "GX");
 
-	// Check to make sure that the displays arnt closed, if so then our porgram will end
-	while (!main_disp.is_closed()) {}
-
-	for (int y = 0; y < duplicate.height(); y++)
-	{
-		for (int x = 0; x < duplicate.width(); x++)
-		{
-			duplicate(x, y, 0, GREYSCALE) = (unsigned char)sqrt(pow(X(x, y, 0, GREYSCALE), 2) + pow(Y(x, y, 0, GREYSCALE), 2));
-		}
-	}
+	while (!main_disp.is_closed());
 
 	image = duplicate;
 }
@@ -205,4 +191,18 @@ int totalKernel(const unsigned char kernel[LARGE_DIMENTIONS][LARGE_DIMENTIONS])
 	}
 
 	return retVal;
+}
+unsigned char reduceIntToChar(int val)
+{
+	return (unsigned char)val;
+}
+void commitChange(CImg <Image_t> &target, const CImg <Image_t> &source, uint channel)
+{
+	for (uint y = 0; y < target.height(); y++)
+	{
+		for (uint x = 0; x < target.width(); x++)
+		{
+			target(x, y, 0, channel) = source(x, y, 0, channel);
+		}
+	}
 }

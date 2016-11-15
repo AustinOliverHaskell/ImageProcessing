@@ -9,12 +9,11 @@ using namespace cimg_library;
 int main() {
 
 	// Open image
-	CImg <unsigned char> image("flower.jpg");
+	CImg <Image_t> image("large.jpg");
 
 	applySobel(image);
-
 	// Create two displays (Windows)
-	CImgDisplay main_disp(image, "Stenography");
+	CImgDisplay main_disp(image, "Sobel");
 
 	// Check to make sure that the displays arnt closed, if so then our porgram will end
 	while (!main_disp.is_closed()) {}
