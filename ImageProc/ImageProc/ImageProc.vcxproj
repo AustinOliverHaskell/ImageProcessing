@@ -79,12 +79,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Images.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="KernelFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CImg.h" />
     <ClInclude Include="Defs.h" />
+    <ClInclude Include="Images.h" />
     <ClInclude Include="KernelFunctions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

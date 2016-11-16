@@ -14,12 +14,13 @@ void removeColor(CImg <Image_t> &image, enum Colors color);
 void makeGreyscale(CImg <Image_t> &image);
 void filterNoise(CImg <Image_t> &image, int threshold);
 
-// Blurs
+// Kernel Convolution
 // -------------------------------------------------------------------------------------------------------------------------------
 void applySobelKernel(CImg <Image_t> &image);
 void applyKernel(CImg <Image_t> &image, const unsigned char kernel[LARGE_DIMENTIONS][LARGE_DIMENTIONS], int devisor);
 void applySobel(CImg <Image_t> &image);
 void applyKernelOnChannel(CImg <Image_t> &image, const unsigned char kernel[LARGE_DIMENTIONS][LARGE_DIMENTIONS], int devisor, int channel);
+void applyCanny(CImg <Image_t> &image);
 
 // Utility
 // -------------------------------------------------------------------------------------------------------------------------------

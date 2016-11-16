@@ -175,6 +175,10 @@ void applySobel(CImg <Image_t> &image)
 
 	image = duplicate;
 }
+void applyCanny(CImg <Image_t> &image)
+{
+
+}
 
 // Utility
 // -------------------------------------------------------------------------------------------------------------------------------
