@@ -1,7 +1,6 @@
 #include "CImg.h"
 #include <iostream>
 #include <string>
-#include "KernelFunctions.h"
 #include "Defs.h"
 #include "Image.h"
 
@@ -9,11 +8,11 @@ using namespace cimg_library;
 
 int main() {
 
-	Image img("Bat.jpg");
+	Image img("momdad.jpg");
 
 	img.applySobel();
 
-	img.display("Bat.jpg");
+	img.display();
 
 	// End
 	return 0;

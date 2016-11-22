@@ -82,14 +82,12 @@
     <ClCompile Include="BatchImages.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Source.cpp" />
-    <ClCompile Include="KernelFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CImg.h" />
     <ClInclude Include="Defs.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="BatchImages.h" />
-    <ClInclude Include="KernelFunctions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,8 +1,12 @@
-﻿  Image.cpp
-c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\defs.h(49): warning C4838: conversion from 'int' to 'const unsigned char' requires a narrowing conversion
-c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\defs.h(63): warning C4838: conversion from 'int' to 'const unsigned char' requires a narrowing conversion
-c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\image.cpp(185): warning C4244: '=': conversion from 'double' to 'unsigned char', possible loss of data
-c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\image.cpp(233): warning C4018: '<': signed/unsigned mismatch
-c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\image.cpp(235): warning C4018: '<': signed/unsigned mismatch
+﻿  Source.cpp
+c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\image.h(33): warning C4838: conversion from 'int' to 'const unsigned char' requires a narrowing conversion
+c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\image.h(47): warning C4838: conversion from 'int' to 'const unsigned char' requires a narrowing conversion
+  Image.cpp
+c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\image.h(33): warning C4838: conversion from 'int' to 'const unsigned char' requires a narrowing conversion
+c:\users\austin\documents\github\messing-with-cimg\imageproc\imageproc\image.h(47): warning C4838: conversion from 'int' to 'const unsigned char' requires a narrowing conversion
+  Generating Code...
+  Compiling...
+  BatchImages.cpp
+  Generating Code...
   ImageProc.vcxproj -> C:\Users\Austin\Documents\GitHub\Messing-With-CImg\ImageProc\Debug\ImageProc.exe
   ImageProc.vcxproj -> C:\Users\Austin\Documents\GitHub\Messing-With-CImg\ImageProc\Debug\ImageProc.pdb (Full PDB)
