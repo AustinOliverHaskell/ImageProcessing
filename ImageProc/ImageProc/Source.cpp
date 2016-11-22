@@ -3,22 +3,17 @@
 #include <string>
 #include "KernelFunctions.h"
 #include "Defs.h"
+#include "Image.h"
 
 using namespace cimg_library;
 
 int main() {
 
-	// Open image
-	CImg <Image_t> image("large.jpg");
+	Image img("Bat.jpg");
 
-	applySobel(image);
-	// Create two displays (Windows)
-	CImgDisplay main_disp(image, "Sobel");
+	img.applySobel();
 
-	// Check to make sure that the displays arnt closed, if so then our porgram will end
-	while (!main_disp.is_closed()) {}
-
-	image.save("result.jpg");
+	img.display("Bat.jpg");
 
 	// End
 	return 0;

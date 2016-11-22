@@ -27,4 +27,3 @@ void applyCanny(CImg <Image_t> &image);
 int totalKernel(const unsigned char kernel[LARGE_DIMENTIONS][LARGE_DIMENTIONS]);
 unsigned char reduceIntToChar(int val);
 void commitChange(CImg <Image_t> &target, const CImg <Image_t> &source, uint channel);
-unsigned char mapToValidValues(int val);
