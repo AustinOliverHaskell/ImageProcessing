@@ -8,9 +8,9 @@ using namespace cimg_library;
 
 int main() {
 
-	Image img("momdad.jpg");
+	Image img("Bat.jpg");
 
-	img.applySobel();
+	img.scale(0.25, LINEAR);
 
 	img.display();
 

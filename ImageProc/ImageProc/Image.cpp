@@ -303,4 +303,116 @@ void Image::display(std::string title)
 
 	while (!main_disp.is_closed());
 }
+bool Image::isPixelEmpty(int x, int y, CImg <Image_t> &img)
+{
+	bool retVal = true;
 
+	for (int i = 0; i < img.spectrum(); i++)
+	{
+		if (img(x, y, 0, i) != 0)
+		{
+			// Something is there
+			retVal = false;
+			break;
+		}
+	}
+
+	return retVal;
+}
+
+
+// Scaling
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------
+void Image::scale(double rate, enum ScalingModes mode)
+{
+	if (mode == LINEAR)
+	{
+		scaleLinear(rate);
+	}
+	else if (mode == NEAREST)
+	{
+		scaleNearest(rate);
+	}
+	else
+	{
+		scaleBilinear(rate);
+	}
+}
+void Image::scaleNearest(double rate)
+{
+	// Crate duplicate with required size, Scaling is uniform across X and Y
+	CImg <Image_t> scaled(image.width()*rate, image.height()*rate, 1, image.spectrum(), 0);
+
+	// Scale it
+	scaleWithGaps(image, scaled, rate);
+
+	// Fill in the gaps 
+	for (int y = 0; y < scaled.height(); y++)
+	{
+		for (int x = 0; x < scaled.width(); x++)
+		{
+			// If the pixel is empty
+			if (isPixelEmpty(x, y, scaled))
+			{
+				// Fill it in with nearest neighbor
+				for (int q = 1; q < (int)rate; q++)
+				{
+					if (!isPixelEmpty(x - q, y, scaled))
+					{
+						// Fill in each channel of the image
+						for (int c = 0; c < scaled.spectrum(); c++)
+						{
+							scaled(x, y, 0, c) = scaled(x - q, y, 0, c);
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	image = scaled;
+}
+void Image::scaleLinear(double rate)
+{
+	// Crate duplicate with required size, Scaling is uniform across X and Y
+	CImg <Image_t> scaled(image.width()*rate, image.height()*rate, 1, image.spectrum(), 0);
+
+	// Scale it
+	scaleWithGaps(image, scaled, rate);
+
+	image = scaled;
+}
+void Image::scaleBilinear(double rate)
+{
+	// Crate duplicate with required size, Scaling is uniform across X and Y
+	CImg <Image_t> scaled(image.width()*rate, image.height()*rate, 1, image.spectrum(), 0);
+
+	// Scale it
+	scaleWithGaps(image, scaled, rate);
+
+	image = scaled;
+}
+void Image::scaleWithGaps(CImg <Image_t> &source, CImg <Image_t> &target, double rate)
+{
+	#pragma omp parallel for
+	for (int i = 0; i < source.spectrum(); i++)
+	{
+		scaleWithGaps(source, target, rate, i);
+	}
+}
+void Image::scaleWithGaps(CImg <Image_t> &source, CImg <Image_t> &target, double rate, int channel)
+{
+	// For height
+	for (int y = 0; y < source.height(); y++)
+	{
+		// For width
+		for (int x = 0; x < source.width(); x++)
+		{
+			// Set the pixel value offset by rate
+			target(x * rate, y * rate, 0, channel) = source(x, y, 0, channel);
+		}
+	}
+
+	// Scaled with gaps in pixel values
+}
